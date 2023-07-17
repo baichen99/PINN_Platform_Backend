@@ -10,3 +10,4 @@ __pycache__/
 
 
 !data/burgers_data_gen.py
+!data/burgers/*
