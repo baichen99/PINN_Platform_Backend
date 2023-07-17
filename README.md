@@ -25,7 +25,7 @@
 - [x] Add log file
 - [x] fastapi handle request
 - [x] Visualization
-- [] More Models
+- [ ] More Models
 
 ## Usage
 
