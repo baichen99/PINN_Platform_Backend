@@ -1,0 +1,12 @@
+checkpoints/
+logs/
+database.db
+jobs_dir/
+data/
+*.ipynb
+test*
+__pycache__/
+*.dat
+
+
+!data/burgers_data_gen.py
