@@ -102,8 +102,8 @@ class PINN:
             # bc_loss = (self.model(self.X)[:, :self.config.U_dim] - self.y).pow(2).mean(axis=0)
             bc_loss = []
             for i, (X, y) in enumerate(self.bc_dataloader):
-                bc_loss.append((self.model(X)[:, :self.config.U_dim] - y).pow(2).mean(axis=0))
-            bc_loss = torch.cat(bc_loss, dim=0).mean(axis=0, keepdim=True)
+                bc_loss.append((self.model(X)[:, :self.config.U_dim] - y).pow(2).mean(axis=0, keepdim=True))
+            bc_loss = torch.cat(bc_loss, dim=0).mean(axis=0)
             
             self.current_pde_loss = pde_loss.detach().cpu().tolist()
             self.current_bc_loss = bc_loss.detach().cpu().tolist()
