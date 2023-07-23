@@ -28,6 +28,7 @@ class CausalTrain(Callback):
             t_1 = t_list[i+1]
             # 取出对应区间的residual
             mask = (t >= t_0) & (t < t_1)
+            mask = mask.squeeze()
             Lt[i] = residual[mask].pow(2).mean()
 
         if pinn.current_epoch % pinn.config.causal_train_freq == 0:
