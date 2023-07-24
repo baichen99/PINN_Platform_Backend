@@ -1,6 +1,9 @@
 import torch
 from utils.metrics import cal_l2_relative_err
 from train.callback import Callback
+from rich.console import Console
+from rich.table import Table
+
 
 class EvaluateL2Error(Callback):
     def on_epoch_begin(self, pinn):
@@ -15,4 +18,15 @@ class EvaluateL2Error(Callback):
                 pinn.logger.add_scalar("val_loss", pinn.current_epoch, val_loss)
                 for i, l2_err in enumerate(l2_errs):
                     pinn.logger.add_scalar(f"l2_err_{i}", pinn.current_epoch, l2_err)
-                print(f"Epoch {pinn.current_epoch}: val_loss = {val_loss}, l2_err = {pinn.current_l2_errs}")
+                # print(f"Epoch {pinn.current_epoch}: val_loss = {val_loss}, l2_err = {pinn.current_l2_errs}")
+    
+    def on_epoch_end(self, pinn):
+        if pinn.current_epoch % pinn.config.val_freq == 0:
+            table = Table(title="Scalars", show_header=True, header_style="bold magenta")
+            # pinn.logger.df的列作为表头
+            for col in pinn.logger.df.columns:
+                table.add_column(col)
+            # 输出当前epoch的值
+            table.add_row(*[str(item) for item in pinn.logger.df.iloc[pinn.current_epoch].values])
+            console = Console()
+            console.print(table)
