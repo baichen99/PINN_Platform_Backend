@@ -20,6 +20,6 @@ class InverseTrain(Callback):
         pinn.inverse_params = inverse_params
     
     def on_epoch_end(self, pinn: 'PINN'):
-        if pinn.config.inverse_params:
+        if pinn.config.params_init:
             for i, param in enumerate(pinn.inverse_params):
                 pinn.logger.add_scalar(f"param_{i}", pinn.current_epoch, param.detach().cpu().tolist())
