@@ -6,7 +6,8 @@ from models.MLP import MLP
 config = CommonConfig(
     epochs = 20001,
     val_freq = 1000,
-    batch_size = 2000,
+    print_cols = ['epoch', 'loss', 'val_loss', 'pde_loss_0', 'bc_loss_0', 'l2_err_0'],
+    batch_size = 1000,
     learning_rate = 1e-3,
     lr_decay = 0.1,
     lr_decay_step = 10000,
@@ -14,7 +15,6 @@ config = CommonConfig(
     net = [2, 30, 30, 30, 1],
     pde = 'burgers',
     
-    ic_data_path = "data/burgers/ic_data.csv",
     bc_data_path = "data/burgers/bc_data.csv",
     test_data_path = "data/burgers/test_data.csv",
     pde_data_path = "data/burgers/pde_data.csv",
@@ -32,7 +32,7 @@ config = CommonConfig(
     
     # loss weights
     pde_weights = [1.0],
-    bc_weights = [1.0],
+    bc_weights = [1e3],
     
     adaptive_loss = False,
     adaptive_activation = False,
