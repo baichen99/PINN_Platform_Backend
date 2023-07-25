@@ -1,4 +1,5 @@
-import torch
+from utils.format import print_table, format_to_scientific_notation
+
 
 class Callback:
     def on_train_begin(self, pinn):
@@ -60,6 +61,17 @@ class Callbacks:
     def on_epoch_end(self, pinn):
         for module in self.modules:
             module.on_epoch_end(pinn)
+            
+        # 等所有模块都执行完毕后，再打印
+        if pinn.current_epoch % pinn.config.val_freq == 0:
+            if pinn.config.print_cols and "*" in pinn.config.print_cols:
+                names = pinn.logger.df.columns.tolist()
+            else:
+                names = pinn.config.print_cols
+            # 根据names从df里取出值
+            values = [val for val in pinn.logger.df.iloc[pinn.current_epoch][names]]
+            # to 2d array
+            print_table(cols=['name', 'value'], data=[[name, format_to_scientific_notation(value, 3)] for name, value in zip(names, values)])
 
     def on_val_begin(self, pinn):
         for module in self.modules:
