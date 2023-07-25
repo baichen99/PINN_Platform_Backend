@@ -13,6 +13,7 @@ class CommonConfig(BaseModel):
     # Training configuration
     epochs: int = 10000
     val_freq: int = 1000
+    print_cols: list[str] = ["*"]
     batch_size: int = 1000
     learning_rate: float = 1e-3
     lr_decay: float = 0.99
