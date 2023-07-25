@@ -1,8 +1,8 @@
 import torch
 from utils.metrics import cal_l2_relative_err
+from utils.format import print_table, format_to_scientific_notation
 from train.callback import Callback
-from rich.console import Console
-from rich.table import Table
+
 
 
 class EvaluateL2Error(Callback):
@@ -22,11 +22,11 @@ class EvaluateL2Error(Callback):
     
     def on_epoch_end(self, pinn):
         if pinn.current_epoch % pinn.config.val_freq == 0:
-            table = Table(title="Scalars", show_header=True, header_style="bold magenta")
-            # pinn.logger.df的列作为表头
-            for col in pinn.logger.df.columns:
-                table.add_column(col)
-            # 输出当前epoch的值
-            table.add_row(*[str(item) for item in pinn.logger.df.iloc[pinn.current_epoch].values])
-            console = Console()
-            console.print(table)
+            if pinn.config.print_cols and "*" in pinn.config.print_cols:
+                names = pinn.logger.df.columns.tolist()
+            else:
+                names = pinn.config.print_cols
+            # 根据names从df里取出值
+            values = [val for val in pinn.logger.df.iloc[pinn.current_epoch][names]]
+            # to 2d array
+            print_table(cols=['name', 'value'], data=[[name, format_to_scientific_notation(value, 3)] for name, value in zip(names, values)])
