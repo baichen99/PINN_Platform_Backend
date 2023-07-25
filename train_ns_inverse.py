@@ -5,7 +5,7 @@ from models.MLP import MLP
 
 config = CommonConfig(
     epochs = 20001,
-    val_freq = 1000,
+    val_freq = 10,
     batch_size = 1000,
     learning_rate = 1e-3,
     lr_decay = 0.1,
@@ -40,17 +40,7 @@ config = CommonConfig(
     optimizer = "Adam",
     
     params_init = [0.0, 0.0],
-    
-    # Causal configuration
-    causal_train = False,
-    causal_train_freq = 1000,
-    causal_Nt = 10,
-    causal_tol = 100.0,
-    causal_ic_weight = 10.0,
-    
-    checkpoint_dir = "",
-    checkpoint_freq = 1000,
-    checkpoint_name = "model",
+
     log_dir = f'logs',
 )
 
