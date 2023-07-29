@@ -1,14 +1,14 @@
 from typing import Optional
 from pydantic import BaseModel
 import torch
-from pdes.burgers import Burgers
-from pdes.ns import *
+from pdes import *
 from models.activation import AdaTanh, AdaSigmoid
 from train.modules.self_adaptive_loss import SelfAdaptiveLoss
 from train.modules.causal_train import CausalTrain
 from train.modules.eval import EvaluateL2Error
 from train.modules.checkpoint import Checkpoint
 from train.modules.inverse import InverseTrain
+from train.modules.visualize import PlotAfterTrain
 
 class CommonConfig(BaseModel):
     # Training configuration
@@ -24,6 +24,10 @@ class CommonConfig(BaseModel):
     
     # Device configuration
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    # visualize
+    plot_after_train: bool = True
+    
     parallel: bool = False
     
     # Network configuration
@@ -99,6 +103,8 @@ class CommonConfig(BaseModel):
             modules.append(Checkpoint())
         if cls.params_init:
             modules.append(InverseTrain())
+        if cls.plot_after_train:
+            modules.append(PlotAfterTrain())
         return modules
     
     @property
