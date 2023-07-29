@@ -31,6 +31,11 @@
 
 1. Install dependencies
 
+    ```shell
+    ... install pytorch
+    >>> pip install rich fastapi tqdm rich
+    ```
+
 2. write your pde in `pdes`, and modify `config.common.py` 's function `pde_fn(cls):` to return your pde
 
 3. create a train script, import `PINN` and `config`, and run `PINN(config, model).train()`. Check `train_burgers.py` for example.
