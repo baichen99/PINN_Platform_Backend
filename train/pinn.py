@@ -83,8 +83,9 @@ class PINN:
             pde_residual = self.config.pde_fn(*preds, *Xs, *self.inverse_params)
         else:
             pde_residual = self.config.pde_fn(*preds, *Xs)
-        # to tensor
-        pde_residual = torch.cat(pde_residual, dim=1)
+        print(f"type of pde_residual: {type(pde_residual)}")
+        if type(pde_residual) in [tuple, list]:
+            pde_residual = torch.cat(pde_residual, dim=1)
         return pde_residual
     
     def _train(self):
