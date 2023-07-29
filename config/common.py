@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 import torch
 from pdes.burgers import Burgers
@@ -14,7 +15,7 @@ class CommonConfig(BaseModel):
     epochs: int = 10000
     val_freq: int = 1000
     print_cols: list[str] = ["*"]
-    batch_size: int = 1000
+    batch_size: Optional[int] = 1000
     learning_rate: float = 1e-3
     lr_decay: float = 0.99
     lr_decay_step: int = 10000

@@ -51,22 +51,27 @@ class PINN:
         if self.config.ic_data_path:
             ic_data = torch.from_numpy(pd.read_csv(self.config.ic_data_path).values).float().to(self.device)
             self.ic_X = ic_data[:, :self.config.X_dim]
-            self.ic_y = ic_data[:, self.config.X_dim:self.config.X_dim+self.config.U_dim]
-            self.ic_dataloader = DataLoader(list(zip(self.ic_X, self.ic_y)), batch_size=self.config.batch_size)
-        
+            self.ic_y = ic_data[:, self.config.X_dim:self.config.X_dim+self.config.U_dim]            
+            if self.config.batch_size:
+                self.ic_dataloader = DataLoader(list(zip(self.ic_X, self.ic_y)), batch_size=self.config.batch_size)
+
         bc_data = torch.from_numpy(pd.read_csv(self.config.bc_data_path).values).float().to(self.device)
         self.X = bc_data[:, :self.config.X_dim]
         self.y = bc_data[:, self.config.X_dim:self.config.X_dim+self.config.U_dim]
-        self.bc_dataloader = DataLoader(list(zip(self.X, self.y)), batch_size=self.config.batch_size)
         
         test_data = torch.from_numpy(pd.read_csv(self.config.test_data_path).values).float().to(self.device)
         self.test_X = test_data[:, :self.config.X_dim]
         self.test_y = test_data[:, self.config.X_dim:self.config.X_dim+self.config.U_dim]
-        self.test_dataloader = DataLoader(list(zip(self.test_X, self.test_y)), batch_size=self.config.batch_size)
         
         pde_data = torch.from_numpy(pd.read_csv(self.config.pde_data_path).values).float().to(self.device)
         self.pde_Xs = [pde_data[:, i:i+1].requires_grad_() for i in range(self.config.X_dim)]
-        self.pde_dataloader = DataLoader(list(zip(*self.pde_Xs)), batch_size=self.config.batch_size)
+        
+        if self.config.batch_size:
+            self.bc_dataloader = DataLoader(list(zip(self.X, self.y)), batch_size=self.config.batch_size)
+            self.test_dataloader = DataLoader(list(zip(self.test_X, self.test_y)), batch_size=self.config.batch_size)
+            self.pde_dataloader = DataLoader(list(zip(*self.pde_Xs)), batch_size=self.config.batch_size)
+        
+
 
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=self.config.lr_decay_step, gamma=self.config.lr_decay)
@@ -90,20 +95,19 @@ class PINN:
             self.current_epoch = epoch
             self.callbacks.on_epoch_begin(self)
             
-            residual = []
-            for i, Xs in enumerate(self.pde_dataloader):
-                residual.append(self._compute_residual(Xs))
-            # to tensor 
-            residual = torch.cat(residual, dim=0)
-            
-            # residual = self._compute_residual(self.pde_Xs)
+            if self.config.batch_size:    
+                residual = []
+                bc_loss = []
+                for i, Xs in enumerate(self.pde_dataloader):
+                    residual.append(self._compute_residual(Xs))
+                residual = torch.cat(residual, dim=0)
+                for i, (X, y) in enumerate(self.bc_dataloader):
+                    bc_loss.append((self.model(X)[:, :self.config.U_dim] - y).pow(2).mean(axis=0, keepdim=True))
+                bc_loss = torch.cat(bc_loss, dim=0).mean(axis=0)
+            else:
+                residual = self._compute_residual(self.pde_Xs)
+                bc_loss = (self.model(self.X)[:, :self.config.U_dim] - self.y).pow(2).mean(axis=0)
             pde_loss = residual.pow(2).mean(axis=0)
-            
-            # bc_loss = (self.model(self.X)[:, :self.config.U_dim] - self.y).pow(2).mean(axis=0)
-            bc_loss = []
-            for i, (X, y) in enumerate(self.bc_dataloader):
-                bc_loss.append((self.model(X)[:, :self.config.U_dim] - y).pow(2).mean(axis=0, keepdim=True))
-            bc_loss = torch.cat(bc_loss, dim=0).mean(axis=0)
             
             self.current_pde_loss = pde_loss.detach().cpu().tolist()
             self.current_bc_loss = bc_loss.detach().cpu().tolist()
