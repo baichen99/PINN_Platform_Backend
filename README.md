@@ -1,8 +1,15 @@
-# PINNs Playground
+# PINNs Playground ✨
 
-## Done and Todo
 
-### Methods
+
+**Project Highlights** ✨
+
+1. Automatically generate training history upon completion 📊
+2. Easy to extend with minimal code, enabling rapid verification ✅
+
+## Done and Todo ✅🔥
+
+### Methods ✔️
 
 - [x] Inverse Problem
 - [x] Residual-based adaptive refinement
@@ -12,13 +19,13 @@
 - [x] RAR-D
 - [ ] More methods/algorithms
 
-### PDE examples
+### PDE examples 📝
 
 - [x] Burgers
 - [x] NavierStocks2D
 - [x] NavierStocks3D
 
-### Others
+### Others 🛠️
 
 - [x] Add checkpoint
 - [x] MLP model
@@ -27,20 +34,21 @@
 - [x] Visualization
 - [ ] More Models
 
-## Usage
+## Usage 🚀
 
-1. Install dependencies
+1. Install dependencies 🛠️
+   
+   ```shell
+   ... install pytorch
+   >>> pip install rich fastapi tqdm rich
+   ```
 
-    ```shell
-    ... install pytorch
-    >>> pip install rich fastapi tqdm rich
-    ```
+2. Write your PDE in `pdes`, and modify `config.common.py`'s function `pde_fn(cls):` to return your PDE
 
-2. write your pde in `pdes`, and modify `config.common.py` 's function `pde_fn(cls):` to return your pde
+3. Create a train script, import `PINN` and `config`, and run `PINN(config, model).train()`. Check `train_burgers.py` for an example.
 
-3. create a train script, import `PINN` and `config`, and run `PINN(config, model).train()`. Check `train_burgers.py` for example.
-4. for inverse problem, just add `params_init` in config, and modify `pde_fn` accept `params` as input, check `train_ns_inverse.py` for example.
+4. For inverse problems, just add `params_init` in the config, and modify `pde_fn` to accept `params` as input. Check `train_ns_inverse.py` for an example.
 
-## Add modules
+## Add modules 🧩
 
-This framework is designed to be modular, so you can add your own modules easily. We provide a `Callback` class, which can be used to add your own callback functions.
+This framework is designed to be modular, so you can easily add your own modules. We provide a `Callback` class, which can be used to add your own callback functions.
