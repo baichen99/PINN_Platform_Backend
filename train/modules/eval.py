@@ -17,3 +17,4 @@ class EvaluateL2Error(Callback):
                 for i, l2_err in enumerate(l2_errs):
                     pinn.logger.add_scalar(f"l2_err_{i}", pinn.current_epoch, l2_err)
                 # print(f"Epoch {pinn.current_epoch}: val_loss = {val_loss}, l2_err = {pinn.current_l2_errs}")
+            pinn.logger.save(pinn.config.log_filename)

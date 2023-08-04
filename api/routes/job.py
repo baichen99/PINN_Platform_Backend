@@ -30,6 +30,7 @@ def create_job(data: JobCreate):
         session.refresh(job)
     # make directory for job
     pathlib.Path(f"jobs_dir/{job.id}").mkdir(parents=True, exist_ok=False)
+    pathlib.Path(f"jobs_dir/{job.id}/logs").mkdir(parents=True, exist_ok=False)
     return {"job_id": job.id}
 
 @router.get("/config")
@@ -101,19 +102,23 @@ def run_job(job_id: int, config: CommonConfig, background_tasks: BackgroundTasks
         for attr in ["ic_data_path", "bc_data_path", "test_data_path", "pde_data_path"]:
             if getattr(config, attr) and pathlib.Path(getattr(config, attr)).name == getattr(config, attr):
                 setattr(config, attr, f"jobs_dir/{job_id}/{getattr(config, attr)}")
-            else:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid {attr}")
         
-        model = MLP(config.net, config.adaptive_activation)
+        config.log_dir = f"jobs_dir/{job_id}/logs"
+        
+        model = MLP(config.net, config.activation_fn).to(config.device)
         def train_and_change_status():
-            PINN(config, model).train()
-            with Session(engine) as session:
-                job = session.get(Job, job_id)
-                if not job:
-                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
-                job.status = "finished"
-                session.add(job)
-                session.commit()
+            try:
+                PINN(config, model).train()
+                with Session(engine) as session:
+                    job = session.get(Job, job_id)
+                    if not job:
+                        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+                    job.status = "completed"
+                    session.add(job)
+                    session.commit()
+                    print("Job completed")
+            except Exception as e:
+                raise e
             
         background_tasks.add_task(
             train_and_change_status
@@ -154,7 +159,7 @@ def download_file(job_id: int, filename: str):
 # get log
 @router.get("/{job_id}/log/labels")
 def get_log(job_id: int):
-    log_path = f"jobs_dir/{job_id}/log.csv"
+    log_path = f"jobs_dir/{job_id}/logs/log.csv"
     if not pathlib.Path(log_path).exists():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Log not found")
     df = pd.read_csv(log_path)
@@ -163,7 +168,7 @@ def get_log(job_id: int):
 
 @router.get("/{job_id}/log/{label}")
 def get_log(job_id: int, label: str):
-    log_path = f"jobs_dir/{job_id}/log.csv"
+    log_path = f"jobs_dir/{job_id}/logs/log.csv"
     if not pathlib.Path(log_path).exists():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Log not found")
     df = pd.read_csv(log_path)
