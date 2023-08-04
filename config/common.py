@@ -12,10 +12,10 @@ from train.modules.visualize import PlotAfterTrain
 
 class CommonConfig(BaseModel):
     # Training configuration
-    epochs: int = 10000
-    val_freq: int = 1000
+    epochs: int = 1000
+    val_freq: int = 100
     print_cols: list[str] = ["*"]
-    batch_size: Optional[int] = 1000
+    batch_size: Optional[int] = None
     learning_rate: float = 1e-3
     lr_decay: float = 0.99
     lr_decay_step: int = 10000
@@ -31,7 +31,7 @@ class CommonConfig(BaseModel):
     parallel: bool = False
     
     # Network configuration
-    net: list[int] = [3, 20, 1]
+    net: list[int] = [2, 20, 1]
     activation: str = "tanh"
     adaptive_activation: bool = False
     optimizer: str = "Adam"
@@ -45,10 +45,10 @@ class CommonConfig(BaseModel):
     U_dim: int = 1
     
     # Data paths
-    ic_data_path: str = None
+    ic_data_path: Optional[str] = None
     bc_data_path: str = "bc_data.csv"
     test_data_path: str = "test_data.csv"
-    pde_data_path: str = "pde_data.csv"
+    pde_data_path: Optional[str] = "pde_data.csv"
     
     # Domain bounds
     lower_bound: list[float] = None
