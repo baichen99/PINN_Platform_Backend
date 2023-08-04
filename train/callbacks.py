@@ -55,7 +55,6 @@ class Callbacks:
             
         for i in range(boundary_loss.shape[0]):
             self.add_scalar(f"boundary_loss_{i}", pinn.current_epoch, boundary_loss[i])
-        # print(f"Epoch {pinn.current_epoch}: pde_loss = {pde_loss}, boundary_loss = {boundary_loss}, loss = {loss}")
         if self.config.adaptive_loss:
             self.add_scalar("w1", pinn.current_epoch, self.ws[0])
             self.add_scalar("w2", pinn.current_epoch, self.ws[1])

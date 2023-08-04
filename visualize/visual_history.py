@@ -16,8 +16,19 @@ def plot_history(df: pd.DataFrame, columns: list, save_path: str):
         ax.plot(x, y, label=column)
     ax.legend()
     fig.savefig(save_path)
-    
+    plt.close()
 
+def plot_xy(x, y, save_path: str, x_label: str = 'x', y_label: str = 'y'):
+    """plot x, y
+    """
+    fig, ax = plt.subplots()
+    fig.set_size_inches(12, 8)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.plot(x, y)
+    fig.savefig(save_path)
+    plt.close()
+    
 def compare_history(log_filenames: list, column: str, save_path: str):
     """compare same columns of different log files
     """
