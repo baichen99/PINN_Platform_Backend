@@ -1,21 +1,16 @@
-from typing import Optional
 from pydantic import BaseModel
 import torch
-from pdes import *
+from pdes.burgers import Burgers
+from pdes.ns import *
 from models.activation import AdaTanh, AdaSigmoid
-from train.modules.self_adaptive_loss import SelfAdaptiveLoss
-from train.modules.causal_train import CausalTrain
-from train.modules.eval import EvaluateL2Error
-from train.modules.checkpoint import Checkpoint
-from train.modules.inverse import InverseTrain
-from train.modules.visualize import PlotAfterTrain
+from train.modules import *
 
 class CommonConfig(BaseModel):
     # Training configuration
-    epochs: int = 1000
-    val_freq: int = 100
+    epochs: int = 10000
+    val_freq: int = 1000
     print_cols: list[str] = ["*"]
-    batch_size: Optional[int] = None
+    batch_size: int = 1000
     learning_rate: float = 1e-3
     lr_decay: float = 0.99
     lr_decay_step: int = 10000
@@ -24,14 +19,13 @@ class CommonConfig(BaseModel):
     
     # Device configuration
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    parallel: bool = False
     
     # visualize
     plot_after_train: bool = True
     
-    parallel: bool = False
-    
     # Network configuration
-    net: list[int] = [2, 20, 1]
+    net: list[int] = [3, 20, 1]
     activation: str = "tanh"
     adaptive_activation: bool = False
     optimizer: str = "Adam"
@@ -45,10 +39,10 @@ class CommonConfig(BaseModel):
     U_dim: int = 1
     
     # Data paths
-    ic_data_path: Optional[str] = None
+    ic_data_path: str = None
     bc_data_path: str = "bc_data.csv"
     test_data_path: str = "test_data.csv"
-    pde_data_path: Optional[str] = "pde_data.csv"
+    pde_data_path: str = "pde_data.csv"
     
     # Domain bounds
     lower_bound: list[float] = None
@@ -59,7 +53,8 @@ class CommonConfig(BaseModel):
     
     # Residual-based adaptive refinement (RAR)
     RAR: bool = False
-    RAR_num: int = 1000
+    RAR_num: int = 10000
+    RAR_freq: int = 1000
     RAR_top_k: int = 1
     
     # RAR-D configuration
@@ -105,6 +100,8 @@ class CommonConfig(BaseModel):
             modules.append(InverseTrain())
         if cls.plot_after_train:
             modules.append(PlotAfterTrain())
+        if cls.RAR:
+            modules.append(RAR())
         return modules
     
     @property
