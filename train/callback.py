@@ -69,7 +69,7 @@ class Callbacks:
             else:
                 names = pinn.config.print_cols
             # 根据names从df里取出值
-            values = [val for val in pinn.logger.df.iloc[pinn.current_epoch][names]]
+            values = [val for val in pinn.logger.df.iloc[pinn.current_epoch-1][names]]
             # to 2d array
             print_table(cols=['name', 'value'], data=[[name, format_to_scientific_notation(value, 3)] for name, value in zip(names, values)])
 
