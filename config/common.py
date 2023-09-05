@@ -4,6 +4,8 @@ from pdes.burgers import Burgers
 from pdes.ns import *
 from models.activation import AdaTanh, AdaSigmoid
 from train.modules import *
+from typing import Union, Callable
+from types import FunctionType
 
 class CommonConfig(BaseModel):
     # Training configuration
@@ -34,7 +36,7 @@ class CommonConfig(BaseModel):
     params_init: list[float] = None
 
     # PDE configuration
-    pde: str = 'burgers'
+    pde: Union[str, Callable] = "burgers"
     X_dim: int = 2
     U_dim: int = 1
     
@@ -112,6 +114,8 @@ class CommonConfig(BaseModel):
     @property
     def pde_fn(cls):
         """Calculate the residual of the PDE"""
+        if type(cls.pde) == FunctionType:
+            return cls.pde
         if cls.pde == 'burgers':
             return Burgers
         elif cls.pde == 'ns2d':
