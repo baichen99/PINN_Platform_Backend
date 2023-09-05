@@ -40,7 +40,7 @@
    
    ```shell
    ... install pytorch
-   >>> pip install rich fastapi tqdm rich
+   >>> pip install fastapi tqdm rich matplotlib numpy pandas imageio
    ```
 
 2. Write your PDE in `pdes`, and modify `config.common.py`'s function `pde_fn(cls):` to return your PDE
