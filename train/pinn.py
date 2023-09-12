@@ -74,8 +74,6 @@ class PINN:
             self.bc_dataloader = DataLoader(list(zip(self.X, self.y)), batch_size=self.config.batch_size)
             self.test_dataloader = DataLoader(list(zip(self.test_X, self.test_y)), batch_size=self.config.batch_size)
         
-
-
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=self.config.lr_decay_step, gamma=self.config.lr_decay)
     

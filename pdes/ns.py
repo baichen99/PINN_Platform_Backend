@@ -1,6 +1,6 @@
 from .gradients import gradients
 
-def NavierStocks2D(u, v, x, y, t, nu=0.01):
+def NavierStocks2D(u, v, p, x, y, t, nu=0.01):
     u_t = gradients(u, t)
     u_x = gradients(u, x)
     u_y = gradients(u, y)
