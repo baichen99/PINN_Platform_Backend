@@ -1,3 +1,5 @@
+import torch
+
 from utils.format import print_table, format_to_scientific_notation
 
 
@@ -46,9 +48,16 @@ class Callbacks:
             if hasattr(module, 'on_calc_loss'):
                 return module.on_calc_loss(pinn, residual, boundary_loss)
         
-        # cal loss by default weights
         pde_loss = residual.pow(2).mean(axis=0)
-        return pde_loss.sum() + boundary_loss.sum()
+        
+        # cal loss by default weights
+        if not pinn.config.pde_weights:
+            pinn.config.pde_weights = [1.0] * pde_loss.shape[1]
+        if not pinn.config.bc_weights:
+            pinn.config.bc_weights = [1.0] * boundary_loss.shape[1]
+        pde_loss_w = pde_loss * torch.tensor(pinn.config.pde_weights).to(pinn.config.device)
+        boundary_loss_w = boundary_loss * torch.tensor(pinn.config.bc_weights).to(pinn.config.device)
+        return pde_loss_w.sum() + boundary_loss_w.sum()
 
     def on_backward_end(self, pinn):
         for module in self.modules:
