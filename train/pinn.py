@@ -106,6 +106,7 @@ class PINN:
         for epoch in tqdm(range(1, self.config.epochs+1)):
             self.logger.df.loc[epoch, 'epoch'] = epoch
             self.current_epoch = epoch
+            self.current_lr = self.optimizer.param_groups[0]['lr']
             self.callbacks.on_epoch_begin(self)
             
             if self.config.batch_size:
@@ -134,7 +135,8 @@ class PINN:
             
             self.optimizer.zero_grad()
             # self.callbacks.on_backward_begin(self)
-            loss.backward(retain_graph=True)
+            is_retain_graph = self.config.RAR
+            loss.backward(retain_graph=is_retain_graph)
             # self.callbacks.on_backward_end(self)
             self.optimizer.step()
             
