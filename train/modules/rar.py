@@ -17,7 +17,7 @@ class RAR(Callback):
             # to device
             Xs = [X.to(pinn.device).requires_grad_() for X in Xs]
             # cal residual
-            residual = pinn._compute_residual(Xs).reshape(-1)
+            residual = pinn._compute_residual(Xs).sum(dim=1)
             # select top k residual using argsort
             topk = torch.argsort(residual)[:pinn.config.RAR_top_k]
             # update pde_Xs
